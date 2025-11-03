@@ -1,84 +1,463 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
-    <title>百家姓加解密</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百家姓加解密工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(240, 147, 251, 0.4);
+        }
+    </style>
 </head>
-<body>
-    <table align="center">
-        <tr>
-            <td>
-                <textarea name="plain" id="c" rows="6" cols="50"></textarea><br>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="button" id="d" value="加密 ↓">
-                <input type="button" id="b" value="解密 ↑"><br>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <textarea name="plain" id="a" rows="6" cols="50"></textarea><br>
-            </td>
-        </tr>
-    </table>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-user-secret text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">百家姓加解密工具</h1>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="historyBtn" class="hover:text-blue-200 transition">
+                        <i class="fas fa-history mr-2"></i>历史记录
+                    </button>
+                    <button id="helpBtn" class="hover:text-blue-200 transition">
+                        <i class="fas fa-question-circle mr-2"></i>帮助
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6 card-hover fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-lock text-green-500 mr-2"></i>
+                    明文
+                </h2>
+                <textarea id="c"
+                    class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition mb-4"
+                    placeholder="在这里输入要解密的文本..."></textarea>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="d" class="btn-primary text-white px-8 py-3 rounded-lg font-medium">
+                        <i class="fas fa-arrow-down mr-2"></i>加密
+                    </button>
+                    <button id="b" class="btn-secondary text-white px-8 py-3 rounded-lg font-medium">
+                        <i class="fas fa-arrow-up mr-2"></i>解密
+                    </button>
+                </div>
+
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 card-hover fade-in">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-lock-open text-red-500 mr-2"></i>
+                    密文
+                </h2>
+                <textarea id="a"
+                    class="w-full h-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition mb-4"
+                    placeholder="在这里输入要加密的文字..."></textarea>
+
+            </div>
+        </div>
+
+        <!-- 映射表显示 -->
+        <div class="max-w-4xl mx-auto mt-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 card-hover fade-in">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-table text-blue-500 mr-2"></i>
+                    百家姓映射表
+                </h3>
+                <div id="mappingTable"
+                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-h-64 overflow-y-auto">
+                    <!-- 映射表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 百家姓加解密工具. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <!-- 历史记录模态框 -->
+    <div id="historyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-xl p-6 w-11/12 max-w-2xl card-hover">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-history text-purple-500 mr-2"></i>
+                加解密历史
+            </h3>
+            <div id="historyList" class="max-h-96 overflow-y-auto mb-4">
+                <!-- 历史记录将通过JavaScript动态生成 -->
+            </div>
+            <div class="flex justify-end">
+                <button id="closeHistory"
+                    class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 帮助模态框 -->
+    <div id="helpModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-xl p-6 w-11/12 max-w-2xl card-hover">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-question-circle text-blue-500 mr-2"></i>
+                使用帮助
+            </h3>
+            <div class="space-y-3 text-gray-700">
+                <div class="flex items-start">
+                    <i class="fas fa-lock text-green-500 mt-1 mr-2"></i>
+                    <p><strong>加密:</strong> 将普通文本转换为百家姓密文</p>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-lock-open text-red-500 mt-1 mr-2"></i>
+                    <p><strong>解密:</strong> 将百家姓密文转换回普通文本</p>
+                </div>
+                <div class="flex items-start">
+                    <i class="fas fa-table text-blue-500 mt-1 mr-2"></i>
+                    <p><strong>映射表:</strong> 每个百家姓对应一个字符</p>
+                </div>
+            </div>
+            <div class="flex justify-end mt-4">
+                <button id="closeHelp" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition">
+                    我明白了
+                </button>
+            </div>
+        </div>
+    </div>
+    </div>
+
 </body>
+
+</html>
 <script>
-    var replace_table={
-        "赵":"0", "钱":"1", "孙":"2", "李":"3", "周":"4", "吴":"5", "郑":"6", "王":"7", "冯":"8", "陈":"9",
-        "褚":"a", "卫":"b", "蒋":"c", "沈":"d", "韩":"e", "杨":"f", "朱":"g", "秦":"h", "尤":"i", "许":"j",
-        "何":"k", "吕":"l", "施":"m", "张":"n", "孔":"o", "曹":"p", "严":"q", "华":"r", "金":"s", "魏":"t",
-        "陶":"u", "姜":"v", "戚":"w", "谢":"x", "邹":"y", "喻":"z", "福":"A", "水":"B", "窦":"C", "章":"D",
-        "云":"E", "苏":"F", "潘":"G", "葛":"H", "奚":"I", "范":"J", "彭":"K", "郎":"L", "鲁":"M", "韦":"N",
-        "昌":"O", "马":"P", "苗":"Q", "凤":"R", "花":"S", "方":"T", "俞":"U", "任":"V", "袁":"W", "柳":"X",
-        "唐":"Y", "罗":"Z", "薛":".", "伍":"-", "余":"_", "米":"+", "贝":"=", "姚":"/", "孟":"?", "顾":"#",
-        "尹":"%", "江":"&", "钟":"*"
+    // 百家姓映射表
+    const REPLACE_TABLE = {
+        "赵": "0", "钱": "1", "孙": "2", "李": "3", "周": "4", "吴": "5", "郑": "6", "王": "7", "冯": "8", "陈": "9",
+        "褚": "a", "卫": "b", "蒋": "c", "沈": "d", "韩": "e", "杨": "f", "朱": "g", "秦": "h", "尤": "i", "许": "j",
+        "何": "k", "吕": "l", "施": "m", "张": "n", "孔": "o", "曹": "p", "严": "q", "华": "r", "金": "s", "魏": "t",
+        "陶": "u", "姜": "v", "戚": "w", "谢": "x", "邹": "y", "喻": "z", "福": "A", "水": "B", "窦": "C", "章": "D",
+        "云": "E", "苏": "F", "潘": "G", "葛": "H", "奚": "I", "范": "J", "彭": "K", "郎": "L", "鲁": "M", "韦": "N",
+        "昌": "O", "马": "P", "苗": "Q", "凤": "R", "花": "S", "方": "T", "俞": "U", "任": "V", "袁": "W", "柳": "X",
+        "唐": "Y", "罗": "Z", "薛": ".", "伍": "-", "余": "_", "米": "+", "贝": "=", "姚": "/", "孟": "?", "顾": "#",
+        "尹": "%", "江": "&", "钟": "*"
     };
 
-    var b = document.getElementById("b");
-    b.addEventListener("click", function() {
-        var str = document.getElementById("a").value;
-        str=str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-        var strc = str.split("");
-        var c  = '';
-        for(var i=0;i<strc.length;i++){
-            var o=cy(replace_table,strc[i]);
-            c +=o;
+    class SurnameCipher {
+        constructor() {
+            this.history = JSON.parse(localStorage.getItem('cipherHistory')) || [];
+            this.initEventListeners();
+            this.renderMappingTable();
+            this.updateHistoryDisplay();
         }
-        document.getElementById('c').value=c;
-    });
 
-    var d = document.getElementById("d");
-    d.addEventListener("click", function() {
-        var str = document.getElementById("c").value;
-        str=str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-        var v=str.replace(/magnet:\?xt=urn:btih:/,"");
-        var strc = v.split("");
-        var a  = '';
-        for(var i=0;i<strc.length;i++){
-            a +=ay(replace_table,strc[i]);
+        initEventListeners() {
+            // 加密按钮
+            document.getElementById('d').addEventListener('click', () => this.encrypt());
+
+            // 解密按钮
+            document.getElementById('b').addEventListener('click', () => this.decrypt());
+
+            // 历史记录按钮
+            document.getElementById('historyBtn').addEventListener('click', () => this.showHistory());
+            document.getElementById('closeHistory').addEventListener('click', () => this.hideHistory());
+
+            // 帮助按钮
+            document.getElementById('helpBtn').addEventListener('click', () => this.showHelp());
+            document.getElementById('closeHelp').addEventListener('click', () => this.hideHelp());
+
+            // 键盘快捷键
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey) {
+                    switch (e.key) {
+                        case 'e':
+                            e.preventDefault();
+                            this.encrypt();
+                            break;
+                        case 'd':
+                            e.preventDefault();
+                            this.decrypt();
+                            break;
+                    }
+                }
+            });
+
+            // 输入框实时字符计数
+            ['a', 'c'].forEach(id => {
+                document.getElementById(id).addEventListener('input', (e) => {
+                    this.updateCharacterCount(id, e.target.value.length);
+                });
+            });
         }
-        document.getElementById('a').value=a;
-    });
 
+        encrypt() {
+            const input = document.getElementById('c').value.trim();
+            if (!input) {
+                this.showNotification('请输入要加密的文本', 'warning');
+                return;
+            }
 
-    function cy(array,val){
-        for( var key in array ){
-            if(key==val){
-                return array[key];
+            try {
+                const result = this.processEncryption(input);
+                document.getElementById('a').value = result;
+
+                // 保存到历史记录
+                this.saveToHistory('加密', input, result);
+
+                this.showNotification('加密成功！', 'success');
+            } catch (error) {
+                this.showNotification('加密失败: ' + error.message, 'error');
             }
         }
-        return '';
-    }
-    function ay(array,val){
-        for( var key in array ){
-            if(array[key]==val){
-                return key;
+
+        decrypt() {
+            const input = document.getElementById('a').value.trim();
+            if (!input) {
+                this.showNotification('请输入要解密的百家姓密文', 'warning');
+            }
+
+            try {
+                let processedInput = input.replace(/magnet:\?xt=urn:btih:/, "");
+                const result = this.processDecryption(processedInput);
+                document.getElementById('c').value = result;
+
+                // 保存到历史记录
+                this.saveToHistory('解密', input, result);
+
+                this.showNotification('解密成功！', 'success');
+            } catch (error) {
+                this.showNotification('解密失败: ' + error.message, 'error');
             }
         }
-        return '';
+
+        processDecryption(str) {
+            const chars = str.split("");
+            let result = '';
+
+            for (let i = 0; i < chars.length; i++) {
+                const char = chars[i];
+                const replacement = this.findReplacement(REPLACE_TABLE, char);
+                result += replacement !== '' ? replacement : char;
+            }
+
+            return result;
+        }
+
+        processEncryption(str) {
+            const chars = str.split("");
+            let result = '';
+
+            for (let i = 0; i < chars.length; i++) {
+                const char = chars[i];
+                const original = this.findOriginal(REPLACE_TABLE, char);
+                result += original !== '' ? original : char;
+            }
+
+            return result;
+        }
+
+        findReplacement(array, val) {
+            for (let key in array) {
+                if (key === val) {
+                    return array[key];
+                }
+            }
+            return '';
+        }
+
+        findOriginal(array, val) {
+            for (let key in array) {
+                if (array[key] === val) {
+                    return key;
+                }
+            }
+            return '';
+        }
+
+        renderMappingTable() {
+            const container = document.getElementById('mappingTable');
+            container.innerHTML = '';
+
+            Object.entries(REPLACE_TABLE).forEach(([surname, char]) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-2 border-b border-gray-100';
+                item.innerHTML = `
+                <span class="font-medium text-gray-800">${surname}</span>
+                <span class="text-gray-600">→</span>
+                <code class="bg-gray-100 px-2 py-1 rounded text-sm">${char}</span>
+            `;
+                container.appendChild(item);
+            });
+        }
+
+        saveToHistory(type, input, output) {
+            const record = {
+                id: Date.now(),
+                type: type,
+                timestamp: new Date().toLocaleString(),
+                input: input,
+                output: output
+            };
+
+            this.history.unshift(record);
+            if (this.history.length > 20) {
+                this.history.pop();
+            }
+
+            localStorage.setItem('cipherHistory', JSON.stringify(this.history));
+            this.updateHistoryDisplay();
+        }
+
+        updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            if (!historyList) return;
+
+            if (this.history.length === 0) {
+                historyList.innerHTML = `
+                <div class="text-center text-gray-500 py-8">
+                    <i class="fas fa-clock text-3xl mb-3"></i>
+                    <p>暂无历史记录</p>
+                </div>
+            `;
+                return;
+            }
+
+            historyList.innerHTML = this.history.map(record => `
+                <div class="border-b border-gray-200 py-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium text-gray-800">${record.type}</span>
+                        <span class="text-xs text-gray-500">${record.timestamp}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                        <div>
+                            <span class="text-gray-600">输入:</span>
+                        <div class="truncate font-mono">${record.input}</div>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">输出:</span>
+                        <div class="truncate font-mono">${record.output}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        showHistory() {
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+
+        hideHistory() {
+            document.getElementById('historyModal').classList.add('hidden');
+        }
+
+        showHelp() {
+            document.getElementById('helpModal').classList.remove('hidden');
+        }
+
+        hideHelp() {
+            document.getElementById('helpModal').classList.add('hidden');
+        }
+
+        updateCharacterCount(textareaId, count) {
+            // 可以在这里实现字符计数显示
+        }
+
+        showNotification(message, type) {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500'
+            };
+
+            // 创建临时通知元素
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 text-white px-6 py-3 rounded-lg shadow-lg transition transform translate-x-full ${colors[type]}`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            // 触发动画
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+
+            // 自动消失
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 3000);
+            }, 100);
+        }
     }
+
+    // 初始化应用
+    document.addEventListener('DOMContentLoaded', () => {
+        new SurnameCipher();
+    });
+
 </script>
-</html>
